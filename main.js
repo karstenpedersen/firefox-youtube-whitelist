@@ -1,17 +1,36 @@
-const previewSelector = "ytd-rich-item-renderer";
-const avatarSelector = "a";
-const whitelist = [];
+const whitelist = [
+  "markiplier",
+  "vimjoyer"
+];
 
-window.addEventListener("load", () => {
-  const previews = document.querySelectorAll(previewSelector);
+const container = document.getElementById('content');
+const config = {
+  childList: true,
+  subtree: true
+};
 
-  previews.forEach(p => {
-    const avatar = p.querySelectorAll(avatarSelector);
+function filterPreviews(mutationList, observer) {
+  const previews = document.querySelectorAll("#content.ytd-rich-item-renderer");
+  for (const preview of previews) {
+    // Get avatar
+    const avatar = preview.querySelector("a#avatar-link");
+    if (!avatar) continue;
+
     const href = avatar.getAttribute("href");
+    if (!href) continue;
 
-    if (!whitelist.includes(href)) {
-      p.style.display = "none !important";
+    const name = href.slice(2).toLowerCase();
+
+    // Remove non-whitelisted previews
+    if (!whitelist.includes(name)) {
+      preview.remove();
     }
-  });
-});
+  }
+}
 
+function observe() {
+  const observer = new MutationObserver(filterPreviews);
+  observer.observe(container, config);
+}
+
+observe();
